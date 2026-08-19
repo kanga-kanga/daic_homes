@@ -2,10 +2,13 @@
 
 import 'package:daic_home/main.dart';
 import 'package:daic_home/models/house.dart';
+import 'package:daic_home/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' as io;
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -181,6 +184,8 @@ class AuthService {
     double? maxPrice,
     int? nbrRooms,
     String? location,
+    String? state, // e.g., 'location' or 'vente'
+    double? minSurface, // Nouveau paramètre
   }) async {
     try {
       // Validation des prix
@@ -192,8 +197,17 @@ class AuthService {
       // Création de la requête de base
       var query = _supabase.from('immobilier').select('*').eq('is_actif', true);
       // Application des filtres
-      if (category != null && category.isNotEmpty) {
-        query = query.eq('categorie', category);
+      if (category != null && category.isNotEmpty && category != "Toutes") {
+        if (category == "Parcelle") {
+          // Gère à la fois le singulier et le pluriel pour les parcelles
+          query = query.or('categorie.eq.Parcelle,categorie.eq.Parcelles');
+        } else {
+          query = query.eq('categorie', category);
+        }
+      }
+
+      if (state != null && state.isNotEmpty) {
+        query = query.eq('state', state);
       }
 
       if (minPrice != null) {
@@ -206,12 +220,14 @@ class AuthService {
       if (nbrRooms != null) {
         query = query.gte('nbr_pieces', nbrRooms);
       }
-      // if (maxRooms != null) {
-      //   query = query.lte('nbr_pieces', maxRooms);
-      // }
+
+      if (minSurface != null) {
+        query = query.gte('surface', minSurface.toInt());
+      }
 
       if (location != null && location.isNotEmpty) {
-        query = query.ilike('ville', '%$location%');
+        // Search in both ville and adress columns
+        query = query.or('ville.ilike.%$location%,adress.ilike.%$location%');
       }
       // Exécution de la requête
       final response = await query.order('price', ascending: true);
@@ -280,7 +296,7 @@ class AuthService {
     return response.isNotEmpty;
   }
 
-  Future<String> uploadProfileImage(File imageFile) async {
+  Future<String> uploadProfileImage(XFile imageFile) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception("Utilisateur non connecté");
 
@@ -293,13 +309,26 @@ class AuthService {
       await _deleteOldProfileImages(user.id);
 
       // Uploader la nouvelle image
-      await _supabase.storage
-          .from('photo_de_profil')
-          .upload(
-            filePath,
-            imageFile,
-            fileOptions: FileOptions(upsert: true, contentType: 'image/jpeg'),
-          );
+      if (kIsWeb) {
+        final bytes = await imageFile.readAsBytes();
+        await _supabase.storage.from('photo_de_profil').uploadBinary(
+          filePath,
+          bytes,
+          fileOptions: const FileOptions(
+            upsert: true,
+            contentType: 'image/jpeg',
+          ),
+        );
+      } else {
+        await _supabase.storage.from('photo_de_profil').upload(
+          filePath,
+          io.File(imageFile.path),
+          fileOptions: const FileOptions(
+            upsert: true,
+            contentType: 'image/jpeg',
+          ),
+        );
+      }
 
       // Récupérer l'URL publique
       final String publicUrl = _supabase.storage
@@ -344,7 +373,7 @@ class AuthService {
     required String nom,
     required String prenom,
     required int telephone,
-    File? profileImage, // Nouveau paramètre pour l'image
+    XFile? profileImage, // Nouveau paramètre pour l'image
   }) async {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception("Utilisateur non connecté");
@@ -416,7 +445,7 @@ class AuthService {
       final response =
           await _supabase
               .from('utilisateurs')
-              .select('nom, prenom, email, telephone, avatar_url')
+              .select('nom, prenom, email, telephone, avatar_url, role') // Added role
               .eq('id', user.id)
               .single();
       print("Response : $response");
@@ -426,6 +455,7 @@ class AuthService {
         'email': response['email'] ?? 'Email inconnu',
         'telephone': response['telephone'] ?? 'Téléphone inconnu',
         'avatar_url': response['avatar_url'],
+        'role': response['role'] ?? 'user', // Default to 'user'
       };
     } catch (e) {
       print("Erreur lors de la récupération des détails de l'utilisateur : $e");
@@ -455,22 +485,14 @@ class AuthService {
     }
   }
 
-  Future<String?> getLatestVersion(String platform) async {
-    try {
-      final response =
-          await _supabase
-              .from('app_version')
-              .select('version')
-              .eq('platform', platform)
-              .order('updated_at', ascending: false)
-              .limit(1)
-              .single();
-      if (response['version'] != null) {
-        return response['version'] as String;
-      }
-    } catch (e) {
-      print('Erreur lors de la récupération de la version : $e');
-    }
-    return null;
+  Future<void> signOut(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    await _supabase.auth.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (Route<dynamic> route) => false,
+    );
   }
 }

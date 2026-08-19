@@ -1,15 +1,15 @@
-// import 'package:daic_home/datas/houses_data.dart';
 import 'package:daic_home/models/house.dart';
 import 'package:daic_home/pages/result_search_page.dart';
 import 'package:daic_home/services/auth_service.dart';
 import 'package:daic_home/services/navigation_helper.dart';
 import 'package:daic_home/widget/card_house_sale.dart';
-import 'package:daic_home/widget/card_house_sale_row.dart';
 import 'package:daic_home/widget/shimmer_loading_card.dart';
+import 'package:daic_home/widget/elegant_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
-import 'package:motion_toast/motion_toast.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,67 +19,40 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePagePrincipaleState extends State<HomePage> {
+  String _selectedTransactionType = "À louer";
   String? _selectedCategory;
-  String? _selectedRooms;
+  String? _selectedLocation;
   late Future<List<House>> _housesFuture;
-  late Future firstnameUser;
-  final TextEditingController _minRentController = TextEditingController();
-  final TextEditingController _maxRentController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    firstnameUser =
-        AuthService().getUserFirstName(); // Récupérer le nom de l'utilisateur
-    _housesFuture =
-        AuthService().fetchHouses(); // Initialiser la liste des maisons
+    _housesFuture = AuthService().fetchHouses();
   }
 
   @override
   Widget build(BuildContext context) {
-    // final houses = DataHouse().allHouse();
-
     return FutureBuilder<List<House>>(
       future: _housesFuture,
-
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Afficher le shimmer effect pendant le chargement
           return ListView.builder(
-            itemCount: 5, // Nombre de placeholders à afficher
+            itemCount: 5,
             itemBuilder: (context, index) => const ShimmerLoadingCard(),
           );
         } else if (snapshot.hasError) {
-          // Afficher un SnackBar pour signaler l'erreur
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            MotionToast.error(
-              title: const Text('Connexion instable'),
-              description: Text("Verifier votre connexion internet"),
-              animationType: AnimationType.slideInFromBottom,
-              toastDuration: Duration(seconds: 45),
-              dismissable: true,
-            ).show(context);
-          });
-
-          return ListView.builder(
-            itemCount: 5, // Nombre de placeholders à afficher
-            itemBuilder: (context, index) => const ShimmerLoadingCard(),
-          );
+          return Center(child: Text("Une erreur est survenue"));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Emoji ou icône d'un visage triste
                 SizedBox(
                   width: 150,
                   height: 150,
                   child: Lottie.asset('assets/lottie/crying.json'),
                 ),
-                const SizedBox(
-                  height: 20,
-                ), // Espacement entre l'icône et le texte
-                // Texte indiquant qu'aucune maison n'a été trouvée
+                const SizedBox(height: 20),
                 const Text(
                   'Aucune maison trouvée.',
                   style: TextStyle(
@@ -88,7 +61,6 @@ class _HomePagePrincipaleState extends State<HomePage> {
                     color: Colors.grey,
                   ),
                 ),
-                const SizedBox(height: 10),
               ],
             ),
           );
@@ -97,252 +69,242 @@ class _HomePagePrincipaleState extends State<HomePage> {
         final houses = snapshot.data!;
 
         return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14.0,
+              vertical: 8.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Afficher le premier élément de la liste
-                SizedBox(
-                  child:
-                  // "Bienvenue ${firstnameUser.toString()} 🤗",
-                  FutureBuilder(
-                    future: firstnameUser,
-
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text(
-                          "",
-                          style: GoogleFonts.pacifico(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                            // color: Colors.black,
+                // Header / Greeting
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Trouvez votre prochain Chez-vous",
+                            style: GoogleFonts.montserrat(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return const Text("");
-                      } else {
-                        return Text(
-                          "Bienvenue ${snapshot.data}",
-                          style: GoogleFonts.pacifico(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                            // color: Colors.black,
-                          ),
-                        );
-                      }
-                    },
+                        ],
+                      ),
+                      // Container(
+                      //   padding: const EdgeInsets.all(8),
+                      //   decoration: BoxDecoration(
+                      //     color: Theme.of(
+                      //       context,
+                      //     ).colorScheme.primary.withOpacity(0.1),
+                      //     shape: BoxShape.circle,
+                      //   ),
+                      //   child: Icon(
+                      //     Icons.notifications_none_rounded,
+                      //     color: Theme.of(context).colorScheme.primary,
+                      //   ),
+                      // ),
+                    ],
                   ),
-                ),
+                ).animate().fadeIn().slideX(),
 
-                SizedBox(height: 10),
-                CardHouseSale(
-                  house: houses.first, // Premier élément de la liste
-                  index: 1,
-                ),
-                const SizedBox(height: 20),
+                // Search & Filter Box
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Transaction Type Toggle
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(child: _buildToggleItem("À louer")),
+                            Expanded(child: _buildToggleItem("À vendre")),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-                // Barre de recherche
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                      // Category Dropdown
+                      _buildDropdownField(
+                        icon: Icons.category_rounded,
+                        label: "Type des biens",
+                        value: _selectedCategory,
+                        items: [
+                          "Maison",
+                          "Appartement",
+                          "Parcelle",
+                          "Local Commercial",
+                          "Concession",
+                          "Studio",
+                        ],
+                        onChanged:
+                            (val) => setState(() => _selectedCategory = val),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Location Input (simplified for now)
+                      _buildDropdownField(
+                        icon: Icons.location_on_rounded,
+                        label: "Emplacement",
+                        value: _selectedLocation,
+                        items: ["Lubumbashi"],
+                        onChanged:
+                            (val) => setState(() => _selectedLocation = val),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Search Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => ResultSearchPage(
+                                      category: _selectedCategory,
+                                      state:
+                                          _selectedTransactionType == "À louer"
+                                              ? "A Louer"
+                                              : "A Vendre",
+                                    ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Text(
+                            "Rechercher",
+                            style: GoogleFonts.montserrat(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+
+                const SizedBox(height: 24),
+
+                // Horizontal Categories Tiles
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Recherche rapide",
-                      style: TextStyle(
+                    Text(
+                      "Parcourir par type",
+                      style: GoogleFonts.montserrat(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        // Dropdown pour la catégorie
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedCategory,
-                            items: const [
-                              DropdownMenuItem(
-                                value: "Appartement",
-                                child: Text("Appartement"),
-                              ),
-                              DropdownMenuItem(
-                                value: "Maison",
-                                child: Text("Maison"),
-                              ),
-                              DropdownMenuItem(
-                                value: "Studio",
-                                child: Text("Studio"),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCategory = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Catégorie",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        // Dropdown pour le nombre de pièces
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            value: _selectedRooms,
-                            items: const [
-                              DropdownMenuItem(
-                                value: "1",
-                                child: Text("1 pièce"),
-                              ),
-                              DropdownMenuItem(
-                                value: "2",
-                                child: Text("2 pièces"),
-                              ),
-                              DropdownMenuItem(
-                                value: "3",
-                                child: Text("3 pièces"),
-                              ),
-                              DropdownMenuItem(
-                                value: "4+",
-                                child: Text("4+ pièces"),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedRooms = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: "Pièces",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        // Champ pour le loyer minimum
-                        Expanded(
-                          child: TextFormField(
-                            controller: _minRentController,
-                            decoration: InputDecoration(
-                              labelText: "Loyer min",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              prefixIcon: const Icon(Icons.attach_money),
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        // Champ pour le loyer maximum
-                        Expanded(
-                          child: TextFormField(
-                            controller: _maxRentController,
-                            decoration: InputDecoration(
-                              labelText: "Loyer max",
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              prefixIcon: const Icon(Icons.attach_money),
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                  ],
-                ),
-
-                // const SizedBox(height: 20),
-                // Bouton de recherche
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: ElevatedButton(
-                        // icon: Icon(Icons.search),
-                        onPressed: () {
-                          // Action pour effectuer la recherche
-                          final category = _selectedCategory ?? "Toutes";
-                          final rooms = _selectedRooms ?? "Toutes";
-                          final minRent =
-                              _minRentController.text.isNotEmpty
-                                  ? int.tryParse(_minRentController.text)
-                                  : null;
-                          final maxRent =
-                              _maxRentController.text.isNotEmpty
-                                  ? int.tryParse(_maxRentController.text)
-                                  : null;
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => ResultSearchPage(
-                                    category: category,
-                                    minPrice:
-                                        minRent != null
-                                            ? double.tryParse(
-                                              minRent.toString(),
-                                            )
-                                            : null,
-                                    maxPrice:
-                                        maxRent != null
-                                            ? double.tryParse(
-                                              maxRent.toString(),
-                                            )
-                                            : null,
-                                    nbrRooms: int.tryParse(rooms),
-                                    // location: _selectedLocation,
-                                  ),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor:
-                              Theme.of(context).colorScheme.inversePrimary,
-                        ),
-                        child: const Text(
-                          "Rechercher",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-
-                    // Afficher un texte
                     TextButton(
                       onPressed:
                           () => NavigatorHelper.toSeeMore(context: context),
-                      child: const Text("Voir plus"),
+                      child: Text("Voir tout >"),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 10),
-
-                // Liste horizontale des maisons
+                const SizedBox(height: 12),
                 SizedBox(
-                  height: 200, // Fixer une hauteur pour éviter les conflits
+                  height: 110,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _buildCategoryTile(
+                        "Maison",
+                        Icons.home_rounded,
+                        const Color(0xFF6A9977),
+                      ),
+                      _buildCategoryTile(
+                        "Appartement",
+                        Icons.apartment_rounded,
+                        Colors.blue[100]!,
+                      ),
+                      _buildCategoryTile(
+                        "Parcelle",
+                        Icons.map_rounded,
+                        Colors.orange[100]!,
+                      ),
+                      _buildCategoryTile(
+                        "Local Commercial",
+                        Icons.storefront_rounded,
+                        Colors.cyan[100]!,
+                      ),
+                      _buildCategoryTile(
+                        "Concession",
+                        Icons.house_siding_rounded,
+                        Colors.purple[100]!,
+                      ),
+                      _buildCategoryTile(
+                        "Studio",
+                        Icons.king_bed_rounded,
+                        Colors.amber[100]!,
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 400.ms),
+
+                const SizedBox(height: 24),
+
+                // Recent Properties
+                Text(
+                  "Biens récents",
+                  style: GoogleFonts.montserrat(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 185,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: houses.length > 4 ? 3 : houses.length - 1,
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    itemCount: houses.length > 5 ? 5 : houses.length,
                     itemBuilder:
-                        (context, index) => CardHouseSaleRow(
-                          house:
-                              houses[index + 1], // Exclure le premier élément
-                          index: index + 2,
+                        (context, index) => Container(
+                          width: 220,
+                          margin: const EdgeInsets.only(right: 16),
+                          child: CardHouseSale(
+                            house: houses[index],
+                            index: index,
+                            heroPrefix: 'recent-',
+                          ),
                         ),
                   ),
                 ),
@@ -351,6 +313,139 @@ class _HomePagePrincipaleState extends State<HomePage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildToggleItem(String label) {
+    bool isSelected = _selectedTransactionType == label;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedTransactionType = label),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow:
+              isSelected
+                  ? [
+                    BoxShadow(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                  : [],
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              color: isSelected ? Colors.white : Colors.grey[600],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required IconData icon,
+    required String label,
+    required String? value,
+    required List<String> items,
+    required Function(String?) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          hint: Row(
+            children: [
+              Icon(icon, size: 20, color: Colors.grey[400]),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: GoogleFonts.poppins(
+                  color: Colors.grey[400],
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          isExpanded: true,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+          items:
+              items.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Row(
+                    children: [
+                      Icon(
+                        icon,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(item, style: GoogleFonts.poppins(fontSize: 14)),
+                    ],
+                  ),
+                );
+              }).toList(),
+          onChanged: onChanged,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryTile(String title, IconData icon, Color color) {
+    return Container(
+      width: 100,
+      margin: const EdgeInsets.only(right: 12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ResultSearchPage(category: title),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

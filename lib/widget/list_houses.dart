@@ -17,16 +17,17 @@ class _ListHousesState extends State<ListHouses> {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemBuilder:
-          ((context, index) =>
-              CardHouseSale(house: widget.houses[index], index: index + 1)),
-      separatorBuilder:
-          ((context, index) => const Divider(
-            color: Colors.lightBlue,
-            indent: 16,
-            endIndent: 16,
-          )),
       itemCount: widget.houses.length,
+      itemBuilder: (context, index) => CardHouseSale(
+        house: widget.houses[index],
+        index: index + 1,
+        heroPrefix: 'list-',
+      ),
+      separatorBuilder: (context, index) => const Divider(
+        color: Colors.lightBlue,
+        indent: 16,
+        endIndent: 16,
+      ),
     );
   }
 }

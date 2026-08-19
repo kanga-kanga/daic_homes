@@ -1,171 +1,198 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class AboutusPage extends StatelessWidget {
   const AboutusPage({super.key});
 
-  get icon => null;
-
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text("À propos de nous"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(
+          "À propos de nous",
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section d'introduction
-            const Text(
-              "Bienvenue sur Daic Home",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Bienvenue sur DAIC Homes, une application innovante développée par DAIC Tech, dédiée à la recherche et à la location de biens immobiliers.\n\n"
-              "Elle vous offre une plateforme moderne, intuitive et facile à utiliser, conçue pour simplifier la connexion entre locataires et propriétaires.\n\n"
-              "Que vous cherchiez une maison ou un appartement, DAIC Homes vous accompagne pour trouver le logement idéal en toute sérénité.",
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-            // Section "Notre mission"
-            const Text(
-              "Notre mission",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Notre mission chez DAIC Tech, à travers DAIC Homes, est de rendre la recherche immobilière plus simple, rapide et accessible.\n"
-              "En centralisant les offres locatives sur une seule plateforme, nous facilitons les échanges entre locataires et propriétaires. Nous nous engageons à fournir un service de qualité, basé sur la confiance, la transparence et l’innovation, pour répondre aux besoins réels de nos utilisateurs.",
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-            // Section "Notre mission"
-            const SizedBox(height: 20),
-            // Section "Nos Valeurs"
-            const Text(
-              "Nos valeurs",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Chez DAIC Tech, les fondations de DAIC Homes reposent sur des valeurs essentielles :\n\n"
-              "\t\t - Accessibilité : une plateforme pensée pour tous, facile à utiliser.\n\n"
-              "\t\t - Transparence : des informations claires pour des décisions éclairées.\n\n"
-              "\t\t - Confiance : un environnement sécurisé pour toutes les parties.\n\n"
-              "\t\t - Innovation : des solutions technologiques au service de la simplicité.\n\n"
-              "\t\t - Engagement : une écoute active pour améliorer continuellement nos services.",
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            // Section "Contactez-nous"
-            const Text(
-              "Contactez-nous",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                Icon(Icons.email, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  "daictech2024@gmail.com",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
+            // Header with Gradient
+            Container(
+              height: 250,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                Icon(Icons.phone, color: Colors.green),
-                SizedBox(width: 10),
-                Text(
-                  "+243 972 149 794",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(50),
                 ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                // Icon(
-                FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green),
-                SizedBox(width: 10),
-                Text(
-                  "+243 972 149 794",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                Icon(Icons.location_on, color: Colors.red),
-                SizedBox(width: 10),
-                Text(
-                  "Lubumbashi, Haut-Katanga, RDC",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Section "Suivez-nous"
-            const Text(
-              "Suivez-nous sur : ",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.facebook, color: Colors.blue),
-                  onPressed: () async {
-                    const url =
-                        'https://www.facebook.com/profile.php?id=61575629320948'; // Remplacez par l'URL de votre page Facebook
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Impossible d\'ouvrir le lien $url';
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.whatsapp,
-                    color: Colors.green,
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.home_work_rounded,
+                        size: 80,
+                        color: Colors.white,
+                      ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
+                      const SizedBox(height: 10),
+                      Text(
+                        "DAIC Homes",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2),
+                    ],
                   ),
-                  onPressed: () async {
-                    const url =
-                        'https://whatsapp.com/channel/0029VbATmWDEQIalOVk21f0c'; // Remplacez par l'URL de votre page Facebook
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Impossible d\'ouvrir le lien $url';
-                    }
-                  },
                 ),
-                IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.linkedin,
-                    color: Colors.blue,
-                  ),
-                  onPressed: () async {
-                    const url =
-                        'https://www.linkedin.com/company/daic-tech/'; // Remplacez par l'URL de votre page Facebook
-                    if (await canLaunch(url)) {
-                      await launch(url);
-                    } else {
-                      throw 'Impossible d\'ouvrir le lien $url';
-                    }
-                  },
-                ),
-              ],
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionTitle("Notre Histoire"),
+                  const SizedBox(height: 12),
+                  _buildContentCard(
+                    "Bienvenue sur DAIC Homes, une application innovante développée par DAIC Tech, dédiée à la recherche et à la location de biens immobiliers.\n\n"
+                    "Elle vous offre une plateforme moderne, intuitive et facile à utiliser, conçue pour simplifier la connexion entre locataires et propriétaires.",
+                  ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.1),
+
+                  const SizedBox(height: 30),
+                  _buildSectionTitle("Notre Mission"),
+                  const SizedBox(height: 12),
+                  _buildContentCard(
+                    "Rendre la recherche immobilière plus simple, rapide et accessible. Nous nous engageons à fournir un service de qualité, basé sur la confiance, la transparence et l’innovation.",
+                  ).animate().fadeIn(delay: 500.ms).slideX(begin: 0.1),
+
+                  const SizedBox(height: 30),
+                  _buildSectionTitle("Nos Valeurs"),
+                  const SizedBox(height: 12),
+                  _buildValuesList([
+                    {"icon": Icons.accessibility_new, "label": "Accessibilité"},
+                    {"icon": Icons.visibility, "label": "Transparence"},
+                    {"icon": Icons.security, "label": "Confiance"},
+                    {"icon": Icons.lightbulb, "label": "Innovation"},
+                    {"icon": Icons.favorite, "label": "Engagement"},
+                  ]).animate().fadeIn(delay: 600.ms).scale(),
+
+                  const SizedBox(height: 40),
+                  _buildSectionTitle("Rejoignez-nous"),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildSocialButton(FontAwesomeIcons.facebook, Colors.blue, 'https://www.facebook.com/profile.php?id=61575629320948'),
+                      const SizedBox(width: 20),
+                      _buildSocialButton(FontAwesomeIcons.whatsapp, Colors.green, 'https://whatsapp.com/channel/0029VbATmWDEQIalOVk21f0c'),
+                      const SizedBox(width: 20),
+                      _buildSocialButton(FontAwesomeIcons.linkedin, Colors.blue[800]!, 'https://www.linkedin.com/company/daic-tech/'),
+                    ],
+                  ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.5),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.montserrat(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+    );
+  }
+
+  Widget _buildContentCard(String content) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Text(
+        content,
+        style: GoogleFonts.poppins(
+          fontSize: 15,
+          color: Colors.grey[800],
+          height: 1.6,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildValuesList(List<Map<String, dynamic>> values) {
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: values.map((v) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(v['icon'], size: 18, color: Colors.green[800]),
+            const SizedBox(width: 8),
+            Text(v['label'], style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+          ],
+        ),
+      )).toList(),
+    );
+  }
+
+  Widget _buildSocialButton(IconData icon, Color color, String url) {
+    return GestureDetector(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          shape: BoxShape.circle,
+        ),
+        child: FaIcon(icon, color: color, size: 28),
       ),
     );
   }

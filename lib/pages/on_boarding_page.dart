@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({Key? key}) : super(key: key);
@@ -17,7 +18,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     OnboardingItem(
       title: "Trouvez la maison parfaite",
       description:
-          "Parcourez des milliers d'annonces pour trouver la maison qui correspond à vos besoins.",
+          "Grâce à une recherche intelligente et optimisée, trouvez en clin d'œil, la maison faite pour vous",
       image: Icons.home_work_outlined,
       color: Colors.yellow.shade700,
       backgroundImage: "assets/images/boarding1.jpg",
@@ -76,40 +77,48 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ),
           ),
           Positioned(
-            bottom: 20,
-            right: 10,
-            left: 10,
+            bottom: 30,
+            right: 24,
+            left: 24,
             child: SizedBox(
-              // width: double.infinity,
-              width: MediaQuery.of(context).size.width * 1,
+              height: 56,
+              width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _onboardingItems[_currentPage].color,
+                  foregroundColor: Colors.white,
+                  elevation: 4,
+                  shadowColor: _onboardingItems[_currentPage].color.withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
                 onPressed: () {
                   if (_currentPage == _onboardingItems.length - 1) {
-                    // Naviguer vers la page de login
                     Navigator.pushReplacementNamed(context, '/login');
                   } else {
                     _pageController.nextPage(
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.easeInOutQuart,
                     );
                   }
                 },
-                child: Text(
-                  _currentPage == _onboardingItems.length - 1
-                      ? "Valider" //Icons.check
-                      : "Suivant", //Icons.arrow_forward,
-                  // color: Colors.white,
-                  style: GoogleFonts.pacifico(
-                    fontSize: 18, // Taille de la police
-                    fontWeight: FontWeight.bold, // Gras
-                    color: Colors.white, // Couleur du texte
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    _currentPage == _onboardingItems.length - 1
+                        ? "Commencer"
+                        : "Suivant",
+                    key: ValueKey<int>(_currentPage),
+                    style: GoogleFonts.montserrat(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 ),
               ),
-            ),
+            ).animate().fadeIn(duration: 800.ms, delay: 400.ms).slideY(begin: 0.2, end: 0),
           ),
         ],
       ),
@@ -135,37 +144,66 @@ class OnboardingScreen extends StatelessWidget {
             ),
           ),
         ),
-        // Effet noirci sur l'image
-        Container(color: Colors.black.withOpacity(0.5)),
-        // Contenu (titre et description)
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(item.image, size: 100, color: Colors.white),
-                const SizedBox(height: 40),
-                Text(
-                  item.title,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  item.description,
-                  style: GoogleFonts.pacifico(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+        // Effet dégradé sur l'image pour une meilleure lisibilité
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withOpacity(0.2),
+                Colors.black.withOpacity(0.7),
+                Colors.black.withOpacity(0.9),
               ],
+              stops: const [0.0, 0.6, 1.0],
             ),
+          ),
+        ),
+        // Contenu
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Spacer(flex: 3),
+              Icon(
+                item.image,
+                size: 100,
+                color: Colors.white,
+              )
+                  .animate(key: ValueKey('icon_${item.title}'))
+                  .fadeIn(duration: 600.ms)
+                  .scale(delay: 200.ms, duration: 600.ms, curve: Curves.elasticOut),
+              const SizedBox(height: 48),
+              Text(
+                item.title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.montserrat(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                  height: 1.2,
+                ),
+              )
+                  .animate(key: ValueKey('title_${item.title}'))
+                  .fadeIn(delay: 300.ms, duration: 800.ms)
+                  .slideY(begin: 0.3, end: 0, curve: Curves.easeOutQuad),
+              const SizedBox(height: 24),
+              Text(
+                item.description,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.white.withOpacity(0.85),
+                  height: 1.6,
+                  letterSpacing: 0.5,
+                ),
+              )
+                  .animate(key: ValueKey('desc_${item.title}'))
+                  .fadeIn(delay: 500.ms, duration: 800.ms)
+                  .slideY(begin: 0.3, end: 0, curve: Curves.easeOutQuad),
+              const Spacer(flex: 2),
+            ],
           ),
         ),
       ],

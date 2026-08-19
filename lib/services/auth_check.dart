@@ -25,16 +25,17 @@ class AuthCheck extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // Affichez un écran de chargement pendant la vérification
-          return Center(child: CircularProgressIndicator());
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         if (snapshot.data == true) {
           // Si l'utilisateur est connecté, redirigez vers HomePage
-          return MainPage();
+          return const MainPage();
         } else {
           // Sinon, redirigez vers la page de connexion
-          // return SignupPage();
-          return OnboardingPage();
+          return const OnboardingPage();
         }
       },
     );

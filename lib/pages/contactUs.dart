@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ContactusPage extends StatefulWidget {
   const ContactusPage({super.key});
@@ -21,202 +21,214 @@ class _ContactusPageState extends State<ContactusPage> {
     required String to,
     String? subject,
     String? body,
-    List<String>? cc,
-    List<String>? bcc,
   }) async {
-    String query = '';
-    if (subject != null) query += 'subject=${Uri.encodeComponent(subject)}';
-    if (body != null) query += '&body=${Uri.encodeComponent(body)}';
-    if (cc != null && cc.isNotEmpty) {
-      query += '&cc=${Uri.encodeComponent(cc.join(','))}';
-    }
-    if (bcc != null && bcc.isNotEmpty) {
-      query += '&bcc=${Uri.encodeComponent(bcc.join(','))}';
-    }
-
     final Uri emailUri = Uri(
       scheme: 'mailto',
       path: to,
-      query: query.isNotEmpty ? query : null,
+      query: 'subject=${Uri.encodeComponent(subject ?? "")}&body=${Uri.encodeComponent(body ?? "")}',
     );
 
     if (await canLaunchUrl(emailUri)) {
       await launchUrl(emailUri);
-    } else {
-      throw 'Impossible d\'ouvrir le client email';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text("Nous Contacter"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(
+          "Nous Contacter",
+          style: GoogleFonts.montserrat(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section d'introduction
-            const Text(
-              "Contactez-nous",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              "Si vous avez des questions ou des préoccupations, n'hésitez pas à nous contacter en utilisant le formulaire ci-dessous.",
-              style: TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-            // Formulaire de contact
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Champ pour le nom
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: "Nom",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      prefixIcon: const Icon(Icons.person),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Veuillez entrer votre nom";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  // Champ pour l'email
-                  TextFormField(
-                    controller: _subjectController,
-                    decoration: InputDecoration(
-                      labelText: "Sujet",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      prefixIcon: const Icon(Icons.email),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Veuillez entrer l'objet de votre requette";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  // Champ pour le message
-                  TextFormField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      labelText: "Message",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      prefixIcon: const Icon(Icons.message),
-                    ),
-                    maxLines: 5,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Veuillez entrer votre message";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  // Bouton d'envoi
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate()) {
-                          // Action pour envoyer le message
-                          sendEmailEncoded(
-                            to: "daichomes2024@gmail.com",
-                            subject: _subjectController.text,
-                            body: _messageController.text,
-                          );
-                          _nameController.clear();
-                          _subjectController.clear();
-                          _messageController.clear();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor:
-                            Theme.of(context).colorScheme.inversePrimary,
-                      ),
-                      child: const Text(
-                        "Envoyer",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ),
-                ],
+            // Header
+            Container(
+              height: 220,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                  begin: Alignment.bottomRight,
+                  end: Alignment.topLeft,
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(50),
+                ),
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: Icon(
+                    Icons.contact_support_rounded,
+                    size: 70,
+                    color: Colors.white,
+                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
+                ),
               ),
             ),
-            const SizedBox(height: 30),
-            // Section d'informations de contact
-            const Text(
-              "Informations de contact",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                Icon(Icons.email, color: Colors.blue),
-                SizedBox(width: 10),
-                Text(
-                  "daichomes2024@gmail.com",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
+
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Envoyez-nous un message",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ).animate().fadeIn().slideX(begin: -0.2),
+                    const SizedBox(height: 20),
+                    
+                    _buildModernTextField(
+                      controller: _nameController,
+                      label: "Nom",
+                      icon: Icons.person_outline,
+                      validator: (v) => v!.isEmpty ? "Veuillez entrer votre nom" : null,
+                    ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
+                    
+                    const SizedBox(height: 16),
+                    _buildModernTextField(
+                      controller: _subjectController,
+                      label: "Sujet",
+                      icon: Icons.subject_rounded,
+                      validator: (v) => v!.isEmpty ? "Veuillez entrer le sujet" : null,
+                    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
+                    
+                    const SizedBox(height: 16),
+                    _buildModernTextField(
+                      controller: _messageController,
+                      label: "Message",
+                      icon: Icons.message_outlined,
+                      maxLines: 4,
+                      validator: (v) => v!.isEmpty ? "Veuillez entrer votre message" : null,
+                    ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
+
+                    const SizedBox(height: 30),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            sendEmailEncoded(
+                              to: "daichomes2024@gmail.com",
+                              subject: _subjectController.text,
+                              body: "De: ${_nameController.text}\n\n${_messageController.text}",
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryColor,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          "Envoyer le Message",
+                          style: GoogleFonts.montserrat(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 400.ms).scale(),
+
+                    const SizedBox(height: 40),
+                    Text(
+                      "Nos Coordonnées",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildContactTile(Icons.email_outlined, "daichomes2024@gmail.com", Colors.blue),
+                    _buildContactTile(Icons.phone_outlined, "+243 972 149 794", Colors.green),
+                    _buildContactTile(FontAwesomeIcons.whatsapp, "+243 972 149 794", Colors.green),
+                    _buildContactTile(Icons.location_on_outlined, "Lubumbashi, Haut-Katanga, RDC", Colors.red),
+                    const SizedBox(height: 20),
+                  ],
                 ),
-              ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                Icon(Icons.phone, color: Colors.green),
-                SizedBox(width: 10),
-                Text(
-                  "+243 972 149 794",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                // Icon(
-                FaIcon(FontAwesomeIcons.whatsapp, color: Colors.green),
-                SizedBox(width: 10),
-                Text(
-                  "+243 972 149 794",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: const [
-                Icon(Icons.location_on, color: Colors.red),
-                SizedBox(width: 10),
-                Text(
-                  "Lubumbashi, Haut-Katanga, RDC",
-                  style: TextStyle(fontSize: 16, color: Colors.black87),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildModernTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 22),
+        filled: true,
+        fillColor: Colors.grey[50],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[200]!),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContactTile(IconData icon, String text, Color color) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: FaIcon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(fontSize: 15, color: Colors.black87),
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(delay: 500.ms).slideX(begin: 0.1);
   }
 }

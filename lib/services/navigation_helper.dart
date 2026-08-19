@@ -4,7 +4,6 @@ import 'package:daic_home/pages/details_page.dart';
 import 'package:daic_home/models/house.dart';
 import 'package:daic_home/pages/editprofil_page.dart';
 import 'package:daic_home/pages/help_page.dart';
-import 'package:daic_home/pages/login_page.dart';
 import 'package:daic_home/pages/see_more_page.dart';
 import 'package:flutter/material.dart';
 
@@ -58,10 +57,10 @@ class NavigatorHelper {
   }
 
   static void toLoginPage({required context}) {
-    final page = LoginPage();
-    final MaterialPageRoute route = MaterialPageRoute(
-      builder: (context) => page,
-    );
-    Navigator.push(context, route);
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  static void toSignupPage({required context}) {
+    Navigator.pushReplacementNamed(context, '/signup');
   }
 }

@@ -6,32 +6,51 @@ class ShimmerLoadingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      clipBehavior: Clip.antiAlias,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
+        baseColor: Colors.grey[200]!,
+        highlightColor: Colors.white,
+        period: const Duration(milliseconds: 1500),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Placeholder pour l'image
+            // Image placeholder
             Container(
-              width: MediaQuery.of(context).size.width,
-              height: 150,
+              height: 140,
+              width: double.infinity,
               color: Colors.white,
             ),
-            const SizedBox(height: 10),
-            // Placeholder pour le texte
-            Container(
-              width: MediaQuery.of(context).size.width * .7,
-              height: 16,
-              color: Colors.white,
-            ),
-            const SizedBox(height: 8),
-            Container(
-              width: MediaQuery.of(context).size.width * .5,
-              height: 16,
-              color: Colors.white,
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(width: 60, height: 16, color: Colors.white),
+                      Container(width: 30, height: 16, color: Colors.white),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(width: double.infinity, height: 12, color: Colors.white),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(width: 30, height: 12, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Container(width: 30, height: 12, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Container(width: 30, height: 12, color: Colors.white),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

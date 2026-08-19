@@ -1,7 +1,9 @@
 import 'package:daic_home/models/house.dart';
 import 'package:daic_home/services/navigation_helper.dart';
+import 'package:daic_home/utils/price_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CardHouseSaleRow extends StatefulWidget {
   final House house;
@@ -16,16 +18,13 @@ class CardHouseSaleRow extends StatefulWidget {
 class _CardHouseSaleRowState extends State<CardHouseSaleRow> {
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.6, // Largeur de chaque carte
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.only(right: 16),
       child: Card(
-        // elevation: 4, // Ajoute une ombre pour un effet de profondeur
-        margin: const EdgeInsets.symmetric(
-          horizontal: 8,
-        ), // Espacement horizontal entre les cartes
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Coins arrondis
-        ),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap:
               () => NavigatorHelper.toDetails(
@@ -35,142 +34,85 @@ class _CardHouseSaleRowState extends State<CardHouseSaleRow> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image de la maison
-              // Version avec imageBuilder pour des effets avancés
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                  child: CachedNetworkImage(
-                    imageUrl: widget.house.link_home_images,
-                    imageBuilder:
-                        (context, imageProvider) => Container(
-                          height: 120,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
+              Stack(
+                children: [
+                  Hero(
+                    tag: 'house-row-${widget.house.id}-${widget.index}',
+                    child: CachedNetworkImage(
+                      imageUrl: widget.house.link_home_images,
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder:
+                          (context, url) =>
+                              Container(height: 120, color: Colors.grey[200]),
+                      errorWidget:
+                          (context, url, error) => Container(
+                            height: 120,
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.home_work_rounded,
+                              color: Colors.grey,
                             ),
                           ),
-                        ),
-                    placeholder:
-                        (context, url) => Container(
-                          height: 120,
-                          width: double.infinity,
-                          color: Colors.grey[200],
-                        ),
-                    errorWidget:
-                        (context, url, error) => Container(
-                          height: 120,
-                          width: double.infinity,
-                          color: Colors.grey[200],
-                          child: const Icon(
-                            Icons.home_work_outlined,
-                            size: 32,
-                            color: Colors.grey,
-                          ),
-                        ),
+                    ),
                   ),
-                ),
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.favorite_border_rounded,
+                        color: Colors.red,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-
-              // Contenu de la carte
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Prix et catégorie
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "${widget.house.price} \$",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        Text(
-                          widget.house.categorie,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.blueGrey,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      "${PriceFormatter.format(widget.house.price)} \$${widget.house.isForRent ? '/mois' : ''}",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-
-                    // Adresse
+                    const SizedBox(height: 4),
                     Text(
                       widget.house.adress,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 2,
-                      overflow:
-                          TextOverflow
-                              .fade, // Coupe le texte s'il est trop long
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
-
-                    // Informations supplémentaires (pièces, courant, eau)
+                    const SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.meeting_room,
-                              size: 16,
-                              color: Colors.black54,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              "${widget.house.nbr_pieces} pièces",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
+                        _buildSmallInfo(
+                          Icons.meeting_room_rounded,
+                          "${widget.house.nbr_pieces} Ch.",
                         ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.electrical_services,
-                              size: 16,
-                              color: Colors.black54,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.house.courant,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
+                        _buildSmallInfo(
+                          Icons.bolt_rounded,
+                          widget.house.courant == "OUI" ? "Oui" : "Non",
                         ),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.water_drop,
-                              size: 16,
-                              color: Colors.black54,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              widget.house.eau,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
+                        _buildSmallInfo(
+                          Icons.water_drop_rounded,
+                          widget.house.eau == "OUI" ? "Oui" : "Non",
                         ),
                       ],
                     ),
@@ -181,6 +123,23 @@ class _CardHouseSaleRowState extends State<CardHouseSaleRow> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSmallInfo(IconData icon, String label) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: Colors.grey[500]),
+        const SizedBox(width: 2),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 10,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

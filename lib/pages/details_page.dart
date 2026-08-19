@@ -1,11 +1,15 @@
-// // Created by: Heritier KANGA-KANGA
-
 import 'package:daic_home/services/auth_service.dart';
+import 'package:daic_home/utils/price_formatter.dart';
+import 'package:daic_home/utils/image_utils.dart';
+
 import 'package:flutter/material.dart';
 import 'package:daic_home/models/house.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:motion_toast/motion_toast.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:daic_home/widget/elegant_snackbar.dart';
+import 'package:daic_home/widget/full_screen_image_viewer.dart';
 
 class DetailsPage extends StatefulWidget {
   final House house;
@@ -18,7 +22,6 @@ class DetailsPage extends StatefulWidget {
 
 class _DetailsPageState extends State<DetailsPage> {
   final AuthService _authService = AuthService();
-  int _index = 0;
   bool _isFavorite = false;
 
   void _callNumber(String phone) async {
@@ -53,14 +56,9 @@ class _DetailsPageState extends State<DetailsPage> {
   }
 
   String cleanUrl(String url) {
-    return Uri.parse(url.trim()).toString();
+    return ImageUtils.cleanImageUrl(url);
   }
 
-  void _updateIndex(AssetImage file) {
-    setState(() {
-      _index = widget.house.other_images.indexOf(file);
-    });
-  }
 
   // void _toggleFavorite() {
   //   setState(() {
@@ -79,11 +77,11 @@ class _DetailsPageState extends State<DetailsPage> {
         _isFavorite = !_isFavorite;
       });
     } catch (e) {
-      MotionToast.error(
-        title: const Text('Erreur de connexion'),
-        description: Text("Connexion internet instable ou indisponible 😓"),
-        animationType: AnimationType.slideInFromBottom,
-      ).show(context);
+      ElegantSnackBar.show(
+        context,
+        message: "Connexion internet instable ou indisponible 😓",
+        isError: true,
+      );
     }
   }
 
@@ -105,126 +103,35 @@ class _DetailsPageState extends State<DetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Color themeColor = Theme.of(context).colorScheme.inversePrimary;
-    Color primaryColor =
-        Theme.of(
-          context,
-        ).colorScheme.inversePrimary; // Couleur principale du nouveau design
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
-            expandedHeight: 300,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                children: [
-                  // Image de fond
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image:
-                            (widget.house.other_images.isNotEmpty &&
-                                    widget.house.other_images.length > _index)
-                                ? NetworkImage(
-                                  cleanUrl(
-                                    widget.house.other_images[_index].assetName,
-                                  ),
-                                )
-                                : const AssetImage('assets/images/profile.jpg'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.black.withOpacity(0.6),
-                            Colors.transparent,
-                          ],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              // Stack(
-
-              //   children: [
-              //     // Image de fond
-              //     Container(
-              //       width: double.infinity,
-              //       decoration: BoxDecoration(
-              //         image: DecorationImage(
-              //           image:
-              //               (widget.house.other_images.isNotEmpty &&
-              //                       widget.house.other_images.length > _index)
-              //                   ? NetworkImage(
-              //                     cleanUrl(
-              //                       widget.house.other_images[_index].assetName,
-              //                     ),
-              //                   )
-              //                   : const AssetImage('assets/images/profile.jpg'),
-              //           fit: BoxFit.cover,
-              //         ),
-              //       ),
-              //       child: Container(
-              //         decoration: BoxDecoration(
-              //           gradient: LinearGradient(
-              //             colors: [
-              //               Colors.black.withOpacity(0.6),
-              //               Colors.transparent,
-              //             ],
-              //             begin: Alignment.bottomCenter,
-              //             end: Alignment.topCenter,
-              //           ),
-              //         ),
-              //       ),
-              //     ),
-              //
-              //     // Bouton favori
-              //     Positioned(
-              //       top: 20,
-              //       right: 10,
-              //       child: CircleAvatar(
-              //         backgroundColor: Colors.black.withOpacity(0.4),
-              //         child: IconButton(
-              //           icon: Icon(
-              //             _isFavorite ? Icons.favorite : Icons.favorite_border,
-              //             color: _isFavorite ? Colors.red : Colors.white,
-              //           ),
-              //           onPressed: _toggleFavorite,
-              //         ),
-              //       ),
-              //     ),
-              //   ],
-
-              // ),
-            ),
+            expandedHeight: 400,
+            pinned: true,
+            stretch: true,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.black.withOpacity(0.4),
+                backgroundColor: Colors.black.withOpacity(0.3),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
             ),
             actions: [
               Padding(
-                padding: const EdgeInsets.all(5.0),
+                padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.black.withOpacity(0.4),
+                  backgroundColor: Colors.black.withOpacity(0.3),
                   child: IconButton(
                     icon: Icon(
-                      _isFavorite ? Icons.favorite : Icons.favorite_border,
+                      _isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
                       color: _isFavorite ? Colors.red : Colors.white,
                     ),
                     onPressed: _toggleFavorite,
@@ -232,178 +139,374 @@ class _DetailsPageState extends State<DetailsPage> {
                 ),
               ),
             ],
-            backgroundColor: Colors.transparent,
-            pinned: true,
-          ),
-          SliverPadding(
-            padding: EdgeInsets.all(16),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                // Titre et prix
-                Text(
-                  "${widget.house.categorie} à ${widget.house.state}",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  "${widget.house.price.toString()} \$",
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
+            flexibleSpace: FlexibleSpaceBar(
+              stretchModes: const [StretchMode.zoomBackground],
+              background: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Hero(
+                    tag: 'gallery-image-0',
+                    child: GestureDetector(
+                      onTap: () {
+                        // On n'ouvre la galerie que si on a au moins une image (ou l'image par defaut)
+                        final imageUrl = widget.house.link_home_images.isNotEmpty
+                            ? ImageUtils.cleanImageUrl(widget.house.link_home_images)
+                            : ImageUtils.getDefaultImageForCategory(widget.house.categorie);
+                            
+                        final cleanedOthers = widget.house.other_images
+                            .map((e) => ImageUtils.cleanImageUrl(e))
+                            .where((e) => e.isNotEmpty)
+                            .toList();
+                        
+                        final allImages = [
+                          imageUrl,
+                          ...cleanedOthers,
+                        ];
 
-                // Localisation
-                Row(
-                  children: [
-                    Icon(Icons.location_on, color: Colors.grey),
-                    SizedBox(width: 8),
-                    Text(
-                      widget.house.adress,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 24),
-
-                // Galerie d'images
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children:
-                        widget.house.other_images.map((img) {
-                          return InkWell(
-                            onTap: () => _updateIndex(img),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              child: Container(
-                                width: 70,
-                                height: 70,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  image: DecorationImage(
-                                    image: NetworkImage(img.assetName),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                        if (allImages.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullScreenImageViewer(
+                                images: allImages,
+                                initialIndex: 0,
                               ),
                             ),
                           );
-                        }).toList(),
+                        }
+                      },
+                      child: widget.house.link_home_images.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: ImageUtils.cleanImageUrl(widget.house.link_home_images),
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  Container(color: Colors.grey[200]),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey[200],
+                                child: Icon(Icons.broken_image_rounded, color: Colors.grey[400], size: 64),
+                              ),
+                            )
+                          : Image.asset(
+                              ImageUtils.getDefaultImageForCategory(widget.house.categorie),
+                              fit: BoxFit.cover,
+                            ),
+                    ),
                   ),
-                ),
-                SizedBox(height: 24),
-
-                // Description
-                Text(
-                  "Description",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  widget.house.description,
-                  style: TextStyle(fontSize: 16, height: 1.5),
-                ),
-                SizedBox(height: 24),
-
-                // Détails
-                Text(
-                  "Détails",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                _buildDetailRow("Pièces", widget.house.nbr_pieces.toString()),
-                _buildDetailRow("Électricité", widget.house.courant),
-                _buildDetailRow("Eau", widget.house.eau),
-                SizedBox(height: 24),
-
-                // Boutons d'action
-                Row(
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.6),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            () => _openWhatsApp(
-                              '243970346890',
-                              'Bonjour !🤗 \nJe suis interesser par la maison \n portant l\'id : ',
-                              widget.house.id,
-                            ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            48,
-                            65,
-                            71,
-                          ),
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.house.categorie,
+                                style: GoogleFonts.poppins(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "${widget.house.categorie} à ${widget.house.state}",
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[900],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FaIcon(
-                              FontAwesomeIcons.whatsapp,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 15),
-                            Text(
-                              "Contacter",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
+                        Text(
+                          "${PriceFormatter.format(widget.house.price)} \$${widget.house.isForRent ? '/mois' : ''}",
+                          style: GoogleFonts.montserrat(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_rounded, size: 18, color: Colors.grey[400]),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            widget.house.adress,
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    _buildFeatureGrid(),
+                    const SizedBox(height: 32),
+                    Text(
+                      "Description",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[900],
                       ),
                     ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => _callNumber('+243970346890'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: primaryColor,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            FaIcon(FontAwesomeIcons.phone, color: Colors.white),
-                            SizedBox(width: 15),
-                            Text(
-                              "Appeler",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
+                    const SizedBox(height: 12),
+                    Text(
+                      widget.house.description,
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        color: Colors.grey[700],
+                        height: 1.6,
                       ),
                     ),
+                    const SizedBox(height: 32),
+                    if (widget.house.other_images.isNotEmpty) ...[
+                      Text(
+                        "Galerie",
+                        style: GoogleFonts.montserrat(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[900],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: widget.house.other_images.length,
+                          itemBuilder: (context, index) {
+                            final galleryIndex = index + 1;
+                            return GestureDetector(
+                              onTap: () {
+                                final imageUrl = widget.house.link_home_images.isNotEmpty
+                                    ? ImageUtils.cleanImageUrl(widget.house.link_home_images)
+                                    : ImageUtils.getDefaultImageForCategory(widget.house.categorie);
+                                    
+                                final cleanedOthers = widget.house.other_images
+                                    .map((e) => ImageUtils.cleanImageUrl(e))
+                                    .where((e) => e.isNotEmpty)
+                                    .toList();
+                                
+                                final allImages = [
+                                  imageUrl,
+                                  ...cleanedOthers,
+                                ];
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FullScreenImageViewer(
+                                      images: allImages,
+                                      initialIndex: index + 1,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 100,
+                                margin: const EdgeInsets.only(right: 12),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  image: DecorationImage(
+                                    image: ImageUtils.cleanImageUrl(widget.house.other_images[index]).startsWith('http')
+                                        ? CachedNetworkImageProvider(ImageUtils.cleanImageUrl(widget.house.other_images[index])) as ImageProvider
+                                        : AssetImage(ImageUtils.cleanImageUrl(widget.house.other_images[index])),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                child: Hero(
+                                  tag: 'gallery-image-$galleryIndex',
+                                  child: Container(), // Empty child for Hero tag
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                    ],
                   ],
                 ),
-              ]),
+              ),
             ),
           ),
         ],
       ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _openWhatsApp(
+                  '243972149794',
+                  'Bonjour !🤗 \nJe suis intéressé par la maison id : ',
+                  widget.house.id,
+                ),
+                icon: const FaIcon(FontAwesomeIcons.whatsapp, size: 20),
+                label: const Text("WhatsApp"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF25D366),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () => _callNumber('+243972149794'),
+                icon: const Icon(Icons.phone_rounded, size: 20),
+                label: const Text("Appeler"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: TextStyle(color: Colors.grey)),
-          Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
+  Widget _buildFeatureGrid() {
+    List<Widget> features = [];
+
+    if (widget.house.isMaison) {
+      features = [
+        _buildFeatureItem(Icons.meeting_room_rounded, "${widget.house.nbr_pieces ?? 0} Pièces"),
+        _buildFeatureItem(Icons.bolt_rounded, widget.house.courant == "OUI" ? "Oui" : "Non"),
+        _buildFeatureItem(Icons.water_drop_rounded, widget.house.eau == "OUI" ? "Oui" : "Non"),
+      ];
+    } else if (widget.house.isAppartement) {
+      features = [
+        _buildFeatureItem(Icons.meeting_room_rounded, "${widget.house.nbr_pieces ?? 0} Pièces"),
+        if (widget.house.etage != null && widget.house.etage!.isNotEmpty && widget.house.etage != "NON")
+          _buildFeatureItem(Icons.stairs_rounded, "Étage"),
+        _buildFeatureItem(Icons.bolt_rounded, widget.house.courant == "OUI" ? "Oui" : "Non"),
+        _buildFeatureItem(Icons.water_drop_rounded, widget.house.eau == "OUI" ? "Oui" : "Non"),
+      ];
+    } else if (widget.house.isLand) {
+      features = [
+        if (widget.house.surface != null && widget.house.surface!.isNotEmpty)
+          _buildFeatureItem(Icons.square_foot_rounded, widget.house.surface!),
+        if (widget.house.dimension != null && widget.house.dimension!.isNotEmpty)
+          _buildFeatureItem(Icons.straighten_rounded, widget.house.dimension!),
+        if (widget.house.is_cloture != null)
+          _buildFeatureItem(Icons.fence_rounded, widget.house.is_cloture == "OUI" ? "Clôturée" : "Non clôturée"),
+      ];
+    } else if (widget.house.isConcession) {
+      features = [
+        if (widget.house.surface != null && widget.house.surface!.isNotEmpty)
+          _buildFeatureItem(Icons.square_foot_rounded, "Tot: ${widget.house.surface}"),
+        if (widget.house.nbr_buildings != null && widget.house.nbr_buildings! > 0)
+          _buildFeatureItem(Icons.domain_rounded, "${widget.house.nbr_buildings} Bât."),
+        if (widget.house.main_house != null && widget.house.main_house == "OUI")
+          _buildFeatureItem(Icons.home_rounded, "Maison Princ."),
+        _buildFeatureItem(Icons.bolt_rounded, widget.house.courant == "OUI" ? "Oui" : "Non"),
+      ];
+    } else if (widget.house.isLocalCommercial) {
+      features = [
+        if (widget.house.surface != null && widget.house.surface!.isNotEmpty)
+          _buildFeatureItem(Icons.square_foot_rounded, widget.house.surface!),
+        if (widget.house.business_type != null && widget.house.business_type!.isNotEmpty)
+          _buildFeatureItem(Icons.storefront_rounded, widget.house.business_type!),
+        if (widget.house.commercial_zone != null && widget.house.commercial_zone!.isNotEmpty)
+          _buildFeatureItem(Icons.location_city_rounded, widget.house.commercial_zone!),
+        if (widget.house.visibility != null)
+          _buildFeatureItem(Icons.visibility_rounded, widget.house.visibility == "OUI" ? "Bonne Visibilité" : "Peu Visible"),
+        _buildFeatureItem(Icons.bolt_rounded, widget.house.courant == "OUI" ? "Oui" : "Non"),
+        _buildFeatureItem(Icons.water_drop_rounded, widget.house.eau == "OUI" ? "Oui" : "Non"),
+      ];
+    } else {
+      features = [
+        _buildFeatureItem(Icons.meeting_room_rounded, "${widget.house.nbr_pieces ?? 0} Pièces"),
+        _buildFeatureItem(Icons.bolt_rounded, widget.house.courant == "OUI" ? "Oui" : "Non"),
+        _buildFeatureItem(Icons.water_drop_rounded, widget.house.eau == "OUI" ? "Oui" : "Non"),
+      ];
+    }
+
+    return Wrap(
+      spacing: 12,
+      runSpacing: 16,
+      alignment: WrapAlignment.start,
+      children: features,
+    );
+  }
+
+  Widget _buildFeatureItem(IconData icon, String label) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey[700],
+          ),
+        ),
+      ],
     );
   }
 }
