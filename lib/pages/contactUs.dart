@@ -25,7 +25,8 @@ class _ContactusPageState extends State<ContactusPage> {
     final Uri emailUri = Uri(
       scheme: 'mailto',
       path: to,
-      query: 'subject=${Uri.encodeComponent(subject ?? "")}&body=${Uri.encodeComponent(body ?? "")}',
+      query:
+          'subject=${Uri.encodeComponent(subject ?? "")}&body=${Uri.encodeComponent(body ?? "")}',
     );
 
     if (await canLaunchUrl(emailUri)) {
@@ -74,7 +75,10 @@ class _ContactusPageState extends State<ContactusPage> {
                     Icons.contact_support_rounded,
                     size: 70,
                     color: Colors.white,
-                  ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
+                  ).animate().scale(
+                    duration: 600.ms,
+                    curve: Curves.easeOutBack,
+                  ),
                 ),
               ),
             ),
@@ -94,29 +98,36 @@ class _ContactusPageState extends State<ContactusPage> {
                       ),
                     ).animate().fadeIn().slideX(begin: -0.2),
                     const SizedBox(height: 20),
-                    
+
                     _buildModernTextField(
                       controller: _nameController,
                       label: "Nom",
                       icon: Icons.person_outline,
-                      validator: (v) => v!.isEmpty ? "Veuillez entrer votre nom" : null,
+                      validator:
+                          (v) =>
+                              v!.isEmpty ? "Veuillez entrer votre nom" : null,
                     ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1),
-                    
+
                     const SizedBox(height: 16),
                     _buildModernTextField(
                       controller: _subjectController,
                       label: "Sujet",
                       icon: Icons.subject_rounded,
-                      validator: (v) => v!.isEmpty ? "Veuillez entrer le sujet" : null,
+                      validator:
+                          (v) => v!.isEmpty ? "Veuillez entrer le sujet" : null,
                     ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                    
+
                     const SizedBox(height: 16),
                     _buildModernTextField(
                       controller: _messageController,
                       label: "Message",
                       icon: Icons.message_outlined,
                       maxLines: 4,
-                      validator: (v) => v!.isEmpty ? "Veuillez entrer votre message" : null,
+                      validator:
+                          (v) =>
+                              v!.isEmpty
+                                  ? "Veuillez entrer votre message"
+                                  : null,
                     ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1),
 
                     const SizedBox(height: 30),
@@ -128,7 +139,8 @@ class _ContactusPageState extends State<ContactusPage> {
                             sendEmailEncoded(
                               to: "daichomes2024@gmail.com",
                               subject: _subjectController.text,
-                              body: "De: ${_nameController.text}\n\n${_messageController.text}",
+                              body:
+                                  "De: ${_nameController.text}\n\n${_messageController.text}",
                             );
                           }
                         },
@@ -160,10 +172,26 @@ class _ContactusPageState extends State<ContactusPage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildContactTile(Icons.email_outlined, "daichomes2024@gmail.com", Colors.blue),
-                    _buildContactTile(Icons.phone_outlined, "+243 972 149 794", Colors.green),
-                    _buildContactTile(FontAwesomeIcons.whatsapp, "+243 972 149 794", Colors.green),
-                    _buildContactTile(Icons.location_on_outlined, "Lubumbashi, Haut-Katanga, RDC", Colors.red),
+                    _buildContactTile(
+                      Icons.email_outlined,
+                      "daichomes2024@gmail.com",
+                      Colors.blue,
+                    ),
+                    _buildContactTile(
+                      Icons.phone_outlined,
+                      "+243 972 149 794",
+                      Colors.green,
+                    ),
+                    _buildContactTile(
+                      FontAwesomeIcons.whatsapp,
+                      "+243 972 149 794",
+                      Colors.green,
+                    ),
+                    _buildContactTile(
+                      Icons.location_on_outlined,
+                      "Lubumbashi, Haut-Katanga, RDC",
+                      Colors.red,
+                    ),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -201,13 +229,16 @@ class _ContactusPageState extends State<ContactusPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+            width: 1.5,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildContactTile(IconData icon, String text, Color color) {
+  Widget _buildContactTile(Object icon, String text, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -218,7 +249,10 @@ class _ContactusPageState extends State<ContactusPage> {
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: FaIcon(icon, color: color, size: 20),
+            child:
+                icon is FaIconData
+                    ? FaIcon(icon, color: color, size: 20)
+                    : Icon(icon as IconData, color: color, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(

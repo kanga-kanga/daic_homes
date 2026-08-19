@@ -47,7 +47,11 @@ class HelpPage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.help_outline_rounded, size: 50, color: Colors.white),
+                      const Icon(
+                        Icons.help_outline_rounded,
+                        size: 50,
+                        color: Colors.white,
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         "Comment pouvons-nous vous aider ?",
@@ -108,7 +112,7 @@ class HelpPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   _buildSupportCard(
                     Icons.phone_in_talk_rounded,
                     "Appelez-nous",
@@ -180,7 +184,12 @@ class HelpPage extends StatelessWidget {
     ).animate().fadeIn(delay: (400 + (index * 100)).ms).slideX(begin: 0.1);
   }
 
-  Widget _buildSupportCard(IconData icon, String title, String subtitle, Color color) {
+  Widget _buildSupportCard(
+    Object icon,
+    String title,
+    String subtitle,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -190,7 +199,9 @@ class HelpPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 24),
+          icon is FaIconData
+              ? FaIcon(icon, color: color, size: 24)
+              : Icon(icon as IconData, color: color, size: 24),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

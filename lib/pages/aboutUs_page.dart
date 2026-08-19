@@ -51,7 +51,10 @@ class AboutusPage extends StatelessWidget {
                         Icons.home_work_rounded,
                         size: 80,
                         color: Colors.white,
-                      ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
+                      ).animate().scale(
+                        duration: 600.ms,
+                        curve: Curves.easeOutBack,
+                      ),
                       const SizedBox(height: 10),
                       Text(
                         "DAIC Homes",
@@ -103,11 +106,23 @@ class AboutusPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildSocialButton(FontAwesomeIcons.facebook, Colors.blue, 'https://www.facebook.com/profile.php?id=61575629320948'),
+                      _buildSocialButton(
+                        FontAwesomeIcons.facebook,
+                        Colors.blue,
+                        'https://www.facebook.com/profile.php?id=61575629320948',
+                      ),
                       const SizedBox(width: 20),
-                      _buildSocialButton(FontAwesomeIcons.whatsapp, Colors.green, 'https://whatsapp.com/channel/0029VbATmWDEQIalOVk21f0c'),
+                      _buildSocialButton(
+                        FontAwesomeIcons.whatsapp,
+                        Colors.green,
+                        'https://whatsapp.com/channel/0029VbATmWDEQIalOVk21f0c',
+                      ),
                       const SizedBox(width: 20),
-                      _buildSocialButton(FontAwesomeIcons.linkedin, Colors.blue[800]!, 'https://www.linkedin.com/company/daic-tech/'),
+                      _buildSocialButton(
+                        FontAwesomeIcons.linkedin,
+                        Colors.blue[800]!,
+                        'https://www.linkedin.com/company/daic-tech/',
+                      ),
                     ],
                   ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.5),
                   const SizedBox(height: 40),
@@ -160,25 +175,36 @@ class AboutusPage extends StatelessWidget {
     return Wrap(
       spacing: 12,
       runSpacing: 12,
-      children: values.map((v) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(v['icon'], size: 18, color: Colors.green[800]),
-            const SizedBox(width: 8),
-            Text(v['label'], style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
-          ],
-        ),
-      )).toList(),
+      children:
+          values
+              .map(
+                (v) => Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(v['icon'], size: 18, color: Colors.green[800]),
+                      const SizedBox(width: 8),
+                      Text(
+                        v['label'],
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
     );
   }
 
-  Widget _buildSocialButton(IconData icon, Color color, String url) {
+  Widget _buildSocialButton(FaIconData icon, Color color, String url) {
     return GestureDetector(
       onTap: () async {
         final uri = Uri.parse(url);
